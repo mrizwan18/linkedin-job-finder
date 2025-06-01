@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Job Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font for a modern look */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg border border-blue-200">
+        <h1 class="text-3xl font-extrabold text-center text-blue-800 mb-6">Find Your Dream Job on LinkedIn</h1>
+        <p class="text-center text-gray-600 mb-8">Enter your job preferences below to generate a tailored LinkedIn search link.</p>
+
+        <div class="space-y-5">
+            <div>
+                <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Job Role / Keywords</label>
+                <input type="text" id="role" placeholder="e.g., Software Engineer, Product Manager"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+            </div>
+
+            <div>
+                <label for="techStack" class="block text-sm font-medium text-gray-700 mb-1">Tech Stack / Frameworks</label>
+                <input type="text" id="techStack" placeholder="e.g., Java, Spring Boot, React, Rust, Golang"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+            </div>
+
+            <div>
+                <label for="companyType" class="block text-sm font-medium text-gray-700 mb-1">Company Work Type</label>
+                <input type="text" id="companyType" placeholder="e.g., Fintech, Startup, AI, Consultancy"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+            </div>
+
+            <div>
+                <label for="locationType" class="block text-sm font-medium text-gray-700 mb-1">Workplace Type</label>
+                <select id="locationType"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+                    <option value="2">Remote</option>
+                    <option value="1">On-site</option>
+                    <option value="3">Hybrid</option>
+                    <option value="">Any</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Company Location (e.g., USA, London, New York)</label>
+                <input type="text" id="location" placeholder="Leave blank for worldwide remote"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+            </div>
+
+            <div>
+                <label for="experience" class="block text-sm font-medium text-gray-700 mb-1">Experience Level</label>
+                <select id="experience"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+                    <option value="">Any</option>
+                    <option value="1">Internship</option>
+                    <option value="2">Entry level</option>
+                    <option value="3">Associate</option>
+                    <option value="4">Mid-Senior level</option>
+                    <option value="5">Director</option>
+                    <option value="6">Executive</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="timePosted" class="block text-sm font-medium text-gray-700 mb-1">Time Posted</label>
+                <select id="timePosted"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+                    <option value="">Any Time</option>
+                    <option value="86400">Past 24 hours</option>
+                    <option value="604800">Past Week</option>
+                    <option value="2592000">Past Month</option>
+                </select>
+            </div>
+
+            <button id="generateLinkBtn"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition duration-200 ease-in-out transform hover:scale-105">
+                Search Jobs
+            </button>
+
+            <div id="messageBox" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
+                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+                    <p id="messageText" class="text-gray-800 text-lg mb-4"></p>
+                    <button id="closeMessageBox" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-6 rounded-md">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to HTML elements
+        const roleInput = document.getElementById('role');
+        const techStackInput = document.getElementById('techStack');
+        const companyTypeInput = document.getElementById('companyType');
+        const locationTypeSelect = document.getElementById('locationType');
+        const locationInput = document.getElementById('location');
+        const experienceSelect = document.getElementById('experience');
+        const timePostedSelect = document.getElementById('timePosted');
+        const generateLinkBtn = document.getElementById('generateLinkBtn');
+        // Removed linkOutputDiv, generatedLinkAnchor, copyLinkBtn as they are no longer needed for direct opening
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const closeMessageBox = document.getElementById('closeMessageBox');
+
+        /**
+         * Displays a custom message box instead of using alert().
+         * @param {string} message - The message to display.
+         */
+        function showMessageBox(message) {
+            messageText.textContent = message;
+            messageBox.classList.remove('hidden');
+        }
+
+        /**
+         * Hides the custom message box.
+         */
+        function hideMessageBox() {
+            messageBox.classList.add('hidden');
+        }
+
+        // Event listener for the "OK" button in the message box
+        closeMessageBox.addEventListener('click', hideMessageBox);
+
+        /**
+         * Constructs the LinkedIn job search URL based on user inputs.
+         * @returns {string} The generated LinkedIn search URL.
+         */
+        function generateLinkedInUrl() {
+            const baseUrl = "https://www.linkedin.com/jobs/search/";
+            const params = new URLSearchParams();
+
+            let keywords = [];
+
+            // Add keywords (Job Role / JD)
+            const role = roleInput.value.trim();
+            if (role) {
+                keywords.push(role);
+            }
+
+            // Add Tech Stack/Framework
+            const techStack = techStackInput.value.trim();
+            if (techStack) {
+                keywords.push(techStack);
+            }
+
+            // Add Company Work Type
+            const companyType = companyTypeInput.value.trim();
+            if (companyType) {
+                keywords.push(companyType);
+            }
+
+            // Combine all keywords
+            if (keywords.length > 0) {
+                params.append('keywords', keywords.join(' ')); // Join with space for LinkedIn search
+            } else {
+                // If no role, tech stack, or company type is entered, show a message
+                showMessageBox("Please enter at least a Job Role/Keywords, Tech Stack, or Company Type to search for.");
+                return null; // Indicate that URL generation failed
+            }
+
+            // Add workplace type (On-site, Remote, Hybrid)
+            const locationType = locationTypeSelect.value;
+            if (locationType) {
+                params.append('f_WT', locationType);
+            }
+
+            // Add location (Area/Country/City)
+            const location = locationInput.value.trim();
+            if (location) {
+                params.append('location', location);
+            }
+
+            // Add experience level
+            const experience = experienceSelect.value;
+            if (experience) {
+                params.append('f_E', experience);
+            }
+
+            // Add time posted filter
+            const timePosted = timePostedSelect.value;
+            if (timePosted) {
+                params.append('f_TPR', timePosted);
+            }
+
+            // Construct the full URL
+            return `${baseUrl}?${params.toString()}`;
+        }
+
+        // Event listener for the "Generate Link" button
+        generateLinkBtn.addEventListener('click', () => {
+            const url = generateLinkedInUrl();
+            if (url) {
+                window.open(url, '_blank'); // Open the URL in a new tab
+            }
+            // Removed the display of linkOutputDiv as it's no longer needed
+        });
+    </script>
+</body>
+</html>
